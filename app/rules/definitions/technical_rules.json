@@ -1,0 +1,147 @@
+[
+  {
+    "id": "tech-http-pages",
+    "name": "Page Served Over HTTP",
+    "description": "Page is accessible via insecure HTTP instead of HTTPS.",
+    "category": "technical",
+    "severity": "critical",
+    "conditions": [
+      {
+        "field": "url",
+        "operator": "starts_with",
+        "value": "http://"
+      },
+      {
+        "field": "status_code",
+        "operator": "eq",
+        "value": 200
+      }
+    ],
+    "condition_logic": "AND",
+    "impact_score": 90.0,
+    "effort_score": 4.0,
+    "recommendation": "Enable HTTPS sitewide. Obtain SSL certificate and redirect all HTTP traffic to HTTPS with 301.",
+    "documentation_url": "https://developers.google.com/search/docs/crawling-indexing/http-https",
+    "enabled": true,
+    "applies_to": "page",
+    "tags": ["https", "security", "critical"]
+  },
+  {
+    "id": "tech-meta-noindex",
+    "name": "Page Excluded from Index via Meta Robots",
+    "description": "Page has meta robots noindex directive, preventing search engines from indexing it.",
+    "category": "technical",
+    "severity": "high",
+    "conditions": [
+      {
+        "field": "meta.robots",
+        "operator": "contains",
+        "value": "noindex"
+      }
+    ],
+    "condition_logic": "AND",
+    "impact_score": 75.0,
+    "effort_score": 2.0,
+    "recommendation": "Review meta robots tags. Only pages that should not appear in search should have noindex.",
+    "documentation_url": "https://developers.google.com/search/docs/crawling-indexing/robots-meta-tag",
+    "enabled": true,
+    "applies_to": "page",
+    "tags": ["indexation", "robots", "noindex"]
+  },
+  {
+    "id": "tech-missing-robots-txt",
+    "name": "Missing robots.txt",
+    "description": "No robots.txt file was found at the domain root.",
+    "category": "technical",
+    "severity": "medium",
+    "conditions": [
+      {
+        "field": "robots_txt",
+        "operator": "not_exists",
+        "value": null
+      }
+    ],
+    "condition_logic": "AND",
+    "impact_score": 45.0,
+    "effort_score": 1.0,
+    "recommendation": "Create a robots.txt file at yourdomain.com/robots.txt. Include Sitemap directive.",
+    "documentation_url": "https://developers.google.com/search/docs/crawling-indexing/robots/intro",
+    "enabled": true,
+    "applies_to": "site",
+    "tags": ["robots-txt", "crawl", "technical"]
+  },
+  {
+    "id": "tech-missing-canonical",
+    "name": "Page Missing Canonical Tag",
+    "description": "Page does not have a canonical link element, risking duplicate content indexation.",
+    "category": "technical",
+    "severity": "medium",
+    "conditions": [
+      {
+        "field": "canonical_url",
+        "operator": "not_exists",
+        "value": null
+      },
+      {
+        "field": "status_code",
+        "operator": "eq",
+        "value": 200
+      }
+    ],
+    "condition_logic": "AND",
+    "impact_score": 50.0,
+    "effort_score": 2.0,
+    "recommendation": "Add a self-referencing canonical tag to all indexable pages. Use absolute URLs.",
+    "documentation_url": "https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls",
+    "enabled": true,
+    "applies_to": "page",
+    "tags": ["canonical", "duplicate-content", "technical"]
+  },
+  {
+    "id": "tech-4xx-status",
+    "name": "Page Returns 4xx Error",
+    "description": "Page returns a client error status code (400-499).",
+    "category": "technical",
+    "severity": "high",
+    "conditions": [
+      {
+        "field": "status_code",
+        "operator": "gte",
+        "value": 400
+      },
+      {
+        "field": "status_code",
+        "operator": "lt",
+        "value": 500
+      }
+    ],
+    "condition_logic": "AND",
+    "impact_score": 80.0,
+    "effort_score": 3.0,
+    "recommendation": "Fix or redirect broken pages. Implement 301 redirects for permanently moved content. Remove links to non-existent pages.",
+    "enabled": true,
+    "applies_to": "page",
+    "tags": ["404", "error-pages", "crawl"]
+  },
+  {
+    "id": "tech-5xx-status",
+    "name": "Page Returns 5xx Server Error",
+    "description": "Page returns a server error status code (500-599). These pages cannot be indexed.",
+    "category": "technical",
+    "severity": "critical",
+    "conditions": [
+      {
+        "field": "status_code",
+        "operator": "gte",
+        "value": 500
+      }
+    ],
+    "condition_logic": "AND",
+    "impact_score": 95.0,
+    "effort_score": 6.0,
+    "recommendation": "Investigate and fix server errors immediately. These pages are completely unindexable.",
+    "enabled": true,
+    "applies_to": "page",
+    "tags": ["server-error", "critical", "indexation"]
+  }
+]

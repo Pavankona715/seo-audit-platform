@@ -1,0 +1,179 @@
+version: "3.9"
+
+services:
+
+  # ─────────────────────────────────────────────
+  # FastAPI Application
+  # ─────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: development
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      ENV: development
+      DEBUG: "true"
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - seo_network
+
+  # ─────────────────────────────────────────────
+  # Celery Workers
+  # ─────────────────────────────────────────────
+  worker_crawl:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: development
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - redis
+    command: >
+      celery -A app.workers.celery_app worker
+      -Q crawl_queue
+      -c 2
+      --loglevel=info
+      -n crawl_worker@%h
+    networks:
+      - seo_network
+
+  worker_analysis:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: development
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - redis
+    command: >
+      celery -A app.workers.celery_app worker
+      -Q analysis_queue
+      -c 4
+      --loglevel=info
+      -n analysis_worker@%h
+    networks:
+      - seo_network
+
+  worker_report:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: development
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - redis
+    command: >
+      celery -A app.workers.celery_app worker
+      -Q report_queue
+      -c 2
+      --loglevel=info
+      -n report_worker@%h
+    networks:
+      - seo_network
+
+  # ─────────────────────────────────────────────
+  # Celery Beat (periodic tasks)
+  # ─────────────────────────────────────────────
+  celery_beat:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: development
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - redis
+    command: celery -A app.workers.celery_app beat --loglevel=info
+    networks:
+      - seo_network
+
+  # ─────────────────────────────────────────────
+  # Flower (Celery Monitoring)
+  # ─────────────────────────────────────────────
+  flower:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: development
+    ports:
+      - "5555:5555"
+    env_file:
+      - .env
+    depends_on:
+      - redis
+    command: celery -A app.workers.celery_app flower --port=5555
+    networks:
+      - seo_network
+
+  # ─────────────────────────────────────────────
+  # PostgreSQL
+  # ─────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: seo_audit_platform
+      POSTGRES_USER: seouser
+      POSTGRES_PASSWORD: seopassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U seouser -d seo_audit_platform"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - seo_network
+
+  # ─────────────────────────────────────────────
+  # Redis
+  # ─────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 2gb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - seo_network
+
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  seo_network:
+    driver: bridge

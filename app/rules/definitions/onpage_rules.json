@@ -1,0 +1,181 @@
+[
+  {
+    "id": "onpage-missing-title",
+    "name": "Missing Title Tag",
+    "description": "Page does not have an HTML title tag.",
+    "category": "on_page",
+    "severity": "critical",
+    "conditions": [
+      {
+        "field": "meta.title",
+        "operator": "not_exists",
+        "value": null
+      }
+    ],
+    "condition_logic": "AND",
+    "impact_score": 95.0,
+    "effort_score": 2.0,
+    "recommendation": "Add a unique, descriptive title tag between 30-60 characters to every page.",
+    "documentation_url": "https://developers.google.com/search/docs/appearance/title-link",
+    "enabled": true,
+    "applies_to": "page",
+    "tags": ["title", "metadata", "critical"]
+  },
+  {
+    "id": "onpage-long-title",
+    "name": "Title Tag Too Long",
+    "description": "Title tag exceeds 60 characters and will be truncated in search results.",
+    "category": "on_page",
+    "severity": "medium",
+    "conditions": [
+      {
+        "field": "meta.title",
+        "operator": "length_gt",
+        "value": 60,
+        "transform": null
+      }
+    ],
+    "condition_logic": "AND",
+    "impact_score": 45.0,
+    "effort_score": 2.0,
+    "recommendation": "Trim title tags to under 60 characters while keeping primary keywords near the start.",
+    "documentation_url": "https://developers.google.com/search/docs/appearance/title-link",
+    "enabled": true,
+    "applies_to": "page",
+    "tags": ["title", "metadata"]
+  },
+  {
+    "id": "onpage-short-title",
+    "name": "Title Tag Too Short",
+    "description": "Title tag is under 30 characters, missing valuable keyword real estate.",
+    "category": "on_page",
+    "severity": "medium",
+    "conditions": [
+      {
+        "field": "meta.title",
+        "operator": "exists",
+        "value": null
+      },
+      {
+        "field": "meta.title",
+        "operator": "length_lt",
+        "value": 30
+      }
+    ],
+    "condition_logic": "AND",
+    "impact_score": 40.0,
+    "effort_score": 2.0,
+    "recommendation": "Expand the title tag to 30-60 characters. Include the primary keyword and brand name.",
+    "enabled": true,
+    "applies_to": "page",
+    "tags": ["title", "metadata"]
+  },
+  {
+    "id": "onpage-missing-meta-description",
+    "name": "Missing Meta Description",
+    "description": "Page does not have a meta description tag. Google may generate one automatically, often poorly.",
+    "category": "on_page",
+    "severity": "high",
+    "conditions": [
+      {
+        "field": "meta.description",
+        "operator": "not_exists",
+        "value": null
+      }
+    ],
+    "condition_logic": "AND",
+    "impact_score": 70.0,
+    "effort_score": 2.0,
+    "recommendation": "Write a compelling 70-160 character meta description with the primary keyword and a clear value proposition.",
+    "documentation_url": "https://developers.google.com/search/docs/appearance/snippet",
+    "enabled": true,
+    "applies_to": "page",
+    "tags": ["meta-description", "metadata", "ctr"]
+  },
+  {
+    "id": "onpage-long-meta-description",
+    "name": "Meta Description Too Long",
+    "description": "Meta description exceeds 160 characters and will be truncated by search engines.",
+    "category": "on_page",
+    "severity": "low",
+    "conditions": [
+      {
+        "field": "meta.description",
+        "operator": "length_gt",
+        "value": 160
+      }
+    ],
+    "condition_logic": "AND",
+    "impact_score": 25.0,
+    "effort_score": 1.0,
+    "recommendation": "Trim meta description to under 160 characters. Put the most compelling information first.",
+    "enabled": true,
+    "applies_to": "page",
+    "tags": ["meta-description", "metadata"]
+  },
+  {
+    "id": "onpage-thin-content",
+    "name": "Thin Content Page",
+    "description": "Page contains fewer than 300 words, which may signal low-quality content to search engines.",
+    "category": "on_page",
+    "severity": "medium",
+    "conditions": [
+      {
+        "field": "meta.word_count",
+        "operator": "lt",
+        "value": 300,
+        "transform": "int"
+      }
+    ],
+    "condition_logic": "AND",
+    "impact_score": 55.0,
+    "effort_score": 7.0,
+    "recommendation": "Expand content to at minimum 500-1000 words for competitive pages. Focus on depth, not word count.",
+    "enabled": true,
+    "applies_to": "page",
+    "tags": ["content", "thin-content"]
+  },
+  {
+    "id": "onpage-missing-h1",
+    "name": "Missing H1 Heading",
+    "description": "Page has no H1 heading element, which is a primary on-page ranking signal.",
+    "category": "on_page",
+    "severity": "high",
+    "conditions": [
+      {
+        "field": "meta.h1_count",
+        "operator": "eq",
+        "value": 0,
+        "transform": "int"
+      }
+    ],
+    "condition_logic": "AND",
+    "impact_score": 65.0,
+    "effort_score": 2.0,
+    "recommendation": "Add a single H1 containing the primary target keyword. Should be unique across the site.",
+    "enabled": true,
+    "applies_to": "page",
+    "tags": ["headings", "h1", "on-page"]
+  },
+  {
+    "id": "onpage-uppercase-url",
+    "name": "Uppercase Characters in URL",
+    "description": "URL contains uppercase letters, which can cause duplicate content issues as URLs are case-sensitive.",
+    "category": "on_page",
+    "severity": "low",
+    "conditions": [
+      {
+        "field": "url",
+        "operator": "matches",
+        "value": "/[A-Z]/"
+      }
+    ],
+    "condition_logic": "AND",
+    "impact_score": 20.0,
+    "effort_score": 3.0,
+    "recommendation": "Use only lowercase URLs. Implement 301 redirects from uppercase to lowercase versions.",
+    "enabled": true,
+    "applies_to": "page",
+    "tags": ["url", "technical"]
+  }
+]
